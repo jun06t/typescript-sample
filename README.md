@@ -1,1 +1,1 @@
-# typescrypt-sample
+# typescript-sample
