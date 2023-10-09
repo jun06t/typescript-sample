@@ -1,4 +1,6 @@
 import SchemaBuilder from "@pothos/core";
+import { writeFileSync } from "fs";
+import { lexicographicSortSchema, printSchema } from "graphql";
 import { createYoga } from "graphql-yoga";
 import { createServer } from "node:http";
 
@@ -14,6 +16,11 @@ builder.queryType({
     }),
   }),
 });
+
+const schema = builder.toSchema();
+const schemaAsString = printSchema(lexicographicSortSchema(schema));
+
+writeFileSync("./dist/schema.graphql", schemaAsString);
 
 const yoga = createYoga({
   schema: builder.toSchema(),
