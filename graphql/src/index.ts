@@ -20,29 +20,17 @@ const typeDefs = `#graphql
 `;
 
 const resolvers = {
+  User: {
+    posts: async (parent: any) => {
+      return await prisma.post.findMany({
+        where: { authorId: parent.id },
+      });
+    },
+  },
   Query: {
     users: async () => {
       try {
-        let users = await prisma.user.findMany();
-        let userIds = users.map((user) => user.id);
-        let posts = await prisma.post.findMany({
-          where: { authorId: { in: userIds } },
-        });
-
-        let usersData = users.map((user) => {
-          let userPosts = posts.filter((post) => post.authorId == user.id);
-
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            posts: userPosts.map((post) => {
-              return { title: post.title, content: post.content };
-            }),
-          };
-        });
-
-        return usersData;
+        return await prisma.user.findMany();
       } catch (e) {
         console.log(e);
       }
