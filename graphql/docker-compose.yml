@@ -3,6 +3,17 @@ version: "3.9"
 services:
   mysql:
     image: arm64v8/mysql:8
+    restart: always
+    command: >
+      bash -c '
+      touch /tmp/mysql.log &&
+      tail -f /tmp/mysql.log &
+      /usr/local/bin/docker-entrypoint.sh mysqld
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --general-log=true
+      --general-log-file=/tmp/mysql.log
+      '
     ports:
       - "3306:3306"
     environment:
