@@ -15,14 +15,16 @@ const typeDefs = `#graphql
     posts: [Post]
   }
   type Query {
-    users: [User]
+    users(ids: [Int]): [User]
   }
 `;
 
 const resolvers = {
   Query: {
-    users: async () => {
+    users: async (_: any, args: any) => {
+      const whereClause = args.ids ? { id: { in: args.ids } } : {};
       return await prisma.user.findMany({
+        where: whereClause,
         include: {
           posts: true,
         },
