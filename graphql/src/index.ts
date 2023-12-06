@@ -4,30 +4,40 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const typeDefs = `#graphql
-  type Post {
-    title: String
-    content: String
-  }
   type User {
     id: Int
     name: String
     email: String
-    posts: [Post]
+    age: Int
+    isAdult: Boolean
   }
   type Query {
-    users(ids: [Int]): [User]
+    users: [User]
+    userById(id: Int): User
+    userByEmail(email: String): User
   }
 `;
 
 const resolvers = {
+  User: {
+    isAdult: (parent: any) => {
+      return parent.age >= 18;
+    },
+  },
   Query: {
-    users: async (_: any, args: any) => {
-      const whereClause = args.ids ? { id: { in: args.ids } } : {};
-      return await prisma.user.findMany({
-        where: whereClause,
-        include: {
-          posts: true,
-        },
+    users: async () => {
+      return await prisma.user.findMany();
+    },
+    userById: async (_: any, args: any) => {
+      console.log(args);
+      return await prisma.user.findUnique({
+        where: { id: args.id },
+      });
+    },
+    userByEmail: async (_: any, args: any) => {
+      console.log(args);
+      return await prisma.user.findUnique({
+        where: { email: args.email },
       });
     },
   },
