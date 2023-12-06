@@ -4,31 +4,58 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const typeDefs = `#graphql
-  type Post {
-    title: String
-    content: String
-  }
   type User {
     id: Int
     name: String
     email: String
-    posts: [Post]
+    age: Int
+    isAdult: Boolean
   }
   type Query {
-    users(ids: [Int]): [User]
+    users: [User]
+    userById(id: Int): User
+    userByEmail(email: String): User
   }
 `;
 
+const isAdult = (age: number) => {
+  return age >= 18 ? true : false;
+};
+
 const resolvers = {
   Query: {
-    users: async (_: any, args: any) => {
-      const whereClause = args.ids ? { id: { in: args.ids } } : {};
-      return await prisma.user.findMany({
-        where: whereClause,
-        include: {
-          posts: true,
-        },
+    users: async () => {
+      const user = await prisma.user.findMany();
+      return user.map((u) => {
+        return {
+          ...u,
+          isAdult: isAdult(u.age),
+        };
       });
+    },
+    userById: async (_: any, args: any) => {
+      const user = await prisma.user.findUnique({
+        where: { id: args.id },
+      });
+      if (!user) {
+        throw new Error("User not found");
+      }
+      return {
+        ...user,
+        isAdult: isAdult(user.age),
+      };
+    },
+    userByEmail: async (_: any, args: any) => {
+      const user = await prisma.user.findUnique({
+        where: { email: args.email },
+      });
+      if (!user) {
+        throw new Error("User not found");
+      }
+      return {
+        ...user,
+        isAdult: isAdult(user.age),
+      };
     },
   },
 };
