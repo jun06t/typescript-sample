@@ -17,6 +17,6 @@
   "dependencies": {
     "@pothos/core": "^3.38.0",
     "graphql": "^16.8.1",
-    "graphql-yoga": "^4.0.5"
+    "graphql-yoga": "^5.24.6"
   }
 }
